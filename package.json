@@ -1,0 +1,10 @@
+{
+  "name": "controle-concurso-financas",
+  "version": "1.0.0",
+  "description": "Dashboard de finanças pessoais para controle mensal.",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/finance.test.js"
+  },
+  "private": true
+}
