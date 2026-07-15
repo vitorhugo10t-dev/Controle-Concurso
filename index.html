@@ -11,7 +11,8 @@
       <div>
         <p class="eyebrow">Módulo administrativo</p>
         <h1>Dashboard de finanças pessoais</h1>
-        <p>Controle saldos, bancos, carteiras e contas a pagar por mês de referência.</p>
+        <p>Controle saldos, receitas, bancos, carteiras e contas a pagar por mês de referência.</p>
+        <a class="header-link" href="/dashboard/financas">Acessar /dashboard/financas</a>
       </div>
     </header>
 
@@ -37,6 +38,7 @@
       <section class="summary-grid" aria-label="Resumo mensal financeiro">
         <article class="summary-card"><span>Saldo inicial</span><strong id="summary-initial">R$ 0,00</strong></article>
         <article class="summary-card"><span>Total disponível</span><strong id="summary-available">R$ 0,00</strong></article>
+        <article class="summary-card"><span>Entradas/receitas</span><strong id="summary-income">R$ 0,00</strong></article>
         <article class="summary-card"><span>Contas a pagar</span><strong id="summary-payable">R$ 0,00</strong></article>
         <article class="summary-card"><span>Total já pago</span><strong id="summary-paid">R$ 0,00</strong></article>
         <article class="summary-card highlight"><span>Saldo projetado</span><strong id="summary-projected">R$ 0,00</strong></article>
@@ -50,7 +52,7 @@
           <label>Mês <select id="monthly-month" required></select></label>
           <label>Ano <input id="monthly-year" type="number" min="2000" max="2100" required /></label>
           <label>Saldo inicial <input id="initial-balance" type="number" step="0.01" min="0" required /></label>
-          <label>Saldo final informado <input id="final-balance" type="number" step="0.01" min="0" placeholder="Opcional" /></label>
+          <p class="hint">O saldo final previsto é calculado automaticamente: saldo inicial + receitas - contas em aberto.</p>
           <button type="submit">Salvar controle mensal</button>
         </form>
 
@@ -71,6 +73,15 @@
           <button type="submit">Adicionar conta</button>
         </form>
 
+        <form id="income-form" class="panel form-card">
+          <h2>Entrada/receita</h2>
+          <label>Descrição <input id="income-description" maxlength="120" required /></label>
+          <label>Valor <input id="income-amount" type="number" step="0.01" min="0.01" required /></label>
+          <label>Data de recebimento <input id="income-received-date" type="date" required /></label>
+          <label>Conta de destino <select id="income-account" required></select></label>
+          <button type="submit">Adicionar receita</button>
+        </form>
+
         <form id="bill-form" class="panel form-card">
           <h2>Conta a pagar</h2>
           <label>Descrição <input id="bill-description" maxlength="120" required /></label>
@@ -84,7 +95,8 @@
       </section>
 
       <section class="tables-grid">
-        <article class="panel"><h2>Disponível por banco/conta</h2><div id="account-list" class="list"></div></article>
+        <article class="panel"><h2>Resumo por banco/conta</h2><div id="account-list" class="list"></div></article>
+        <article class="panel"><h2>Receitas do mês</h2><div id="income-list" class="list"></div></article>
         <article class="panel"><h2>Contas a pagar do mês</h2><div id="bill-list" class="list"></div></article>
       </section>
     </main>

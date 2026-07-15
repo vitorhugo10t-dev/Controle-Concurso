@@ -1,8 +1,8 @@
 export const BILL_STATUS = ['pendente', 'paga', 'vencida'];
-export const STORAGE_KEY = 'controleConcurso.finance.v1';
+export const STORAGE_KEY = 'controleConcurso.finance.v2';
 
 export function emptyFinanceState() {
-  return { banks: [], accounts: [], monthlyFinances: [], bills: [] };
+  return { banks: [], accounts: [], monthlyFinances: [], incomes: [], bills: [] };
 }
 
 export function money(value, field = 'valor') {
@@ -51,7 +51,6 @@ export function upsertMonthlyFinance(state, input) {
     month: Number(input.month),
     year: Number(input.year),
     initialBalance: money(input.initialBalance, 'Saldo inicial'),
-    finalBalance: input.finalBalance === '' || input.finalBalance == null ? null : money(input.finalBalance, 'Saldo final'),
   };
   if (existing) Object.assign(existing, record);
   else state.monthlyFinances.push(record);
@@ -75,6 +74,19 @@ export function addAccount(state, input) {
   return account;
 }
 
+export function addIncome(state, input) {
+  if (!state.accounts.some((account) => account.id === input.accountId)) throw new Error('Selecione uma conta válida.');
+  const description = input.description?.trim();
+  if (!description) throw new Error('Descrição da receita é obrigatória.');
+  const key = monthKey(input.month, input.year);
+  const income = {
+    id: createId('income'), key, month: Number(input.month), year: Number(input.year), description,
+    amount: money(input.amount, 'Valor da receita'), receivedDate: validateDueDate(input.receivedDate, 'Data de recebimento'), accountId: input.accountId,
+  };
+  state.incomes.push(income);
+  return income;
+}
+
 export function addBill(state, input) {
   if (!state.accounts.some((account) => account.id === input.accountId)) throw new Error('Selecione uma conta válida.');
   if (!BILL_STATUS.includes(input.status)) throw new Error('Status da conta a pagar é inválido.');
@@ -93,20 +105,24 @@ export function addBill(state, input) {
 export function summarizeMonth(state, month, year) {
   const key = monthKey(month, year);
   const monthly = state.monthlyFinances.find((item) => item.key === key);
+  const incomes = state.incomes.filter((income) => income.key === key);
   const bills = state.bills.filter((bill) => bill.key === key);
   const availableByAccount = state.accounts.map((account) => {
     const bank = state.banks.find((item) => item.id === account.bankId);
-    return { ...account, bankName: bank?.name ?? 'Sem banco' };
+    const accountIncomes = incomes.filter((income) => income.accountId === account.id).reduce((sum, income) => sum + income.amount, 0);
+    const accountBills = bills.filter((bill) => bill.accountId === account.id && bill.status !== 'paga').reduce((sum, bill) => sum + bill.amount, 0);
+    return { ...account, bankName: bank?.name ?? 'Sem banco', incomeTotal: accountIncomes, payableTotal: accountBills, projectedBalance: account.currentBalance + accountIncomes - accountBills };
   });
   const available = availableByAccount.reduce((sum, account) => sum + account.currentBalance, 0);
+  const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
   const totalPayable = bills.reduce((sum, bill) => sum + bill.amount, 0);
   const totalPaid = bills.filter((bill) => bill.status === 'paga').reduce((sum, bill) => sum + bill.amount, 0);
   const openPayable = bills.filter((bill) => bill.status !== 'paga').reduce((sum, bill) => sum + bill.amount, 0);
-  const projectedBalance = available - openPayable;
+  const initialBalance = monthly?.initialBalance ?? 0;
+  const projectedBalance = available + totalIncome - openPayable;
+  const finalBalance = initialBalance + totalIncome - openPayable;
   return {
-    key, monthly, bills, availableByAccount,
-    initialBalance: monthly?.initialBalance ?? 0,
-    finalBalance: monthly?.finalBalance ?? projectedBalance,
-    available, totalPayable, totalPaid, projectedBalance,
+    key, monthly, incomes, bills, availableByAccount,
+    initialBalance, finalBalance, available, totalIncome, totalPayable, totalPaid, openPayable, projectedBalance,
   };
 }
