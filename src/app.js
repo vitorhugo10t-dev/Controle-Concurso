@@ -33,6 +33,8 @@ function render() {
   $('summary-paid').textContent = brl.format(summary.totalPaid);
   $('summary-projected').textContent = brl.format(summary.projectedBalance);
   $('summary-final').textContent = brl.format(summary.finalBalance);
+  $('summary-variation').textContent = brl.format(summary.variation);
+  $('summary-variation').className = summary.variation < 0 ? 'negative' : 'positive';
   $('monthly-month').value = month; $('monthly-year').value = year;
   $('initial-balance').value = summary.monthly?.initialBalance ?? '';
   $('final-balance').value = summary.monthly?.finalBalance ?? '';

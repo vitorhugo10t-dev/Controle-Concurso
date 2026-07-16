@@ -103,10 +103,14 @@ export function summarizeMonth(state, month, year) {
   const totalPaid = bills.filter((bill) => bill.status === 'paga').reduce((sum, bill) => sum + bill.amount, 0);
   const openPayable = bills.filter((bill) => bill.status !== 'paga').reduce((sum, bill) => sum + bill.amount, 0);
   const projectedBalance = available - openPayable;
+  const initialBalance = monthly?.initialBalance ?? 0;
+  const finalBalance = monthly?.finalBalance ?? projectedBalance;
+  const variation = finalBalance - initialBalance;
   return {
     key, monthly, bills, availableByAccount,
-    initialBalance: monthly?.initialBalance ?? 0,
-    finalBalance: monthly?.finalBalance ?? projectedBalance,
+    initialBalance,
+    finalBalance,
+    variation,
     available, totalPayable, totalPaid, projectedBalance,
   };
 }
