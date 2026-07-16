@@ -18,4 +18,10 @@ assert.equal(summary.totalPayable, 620);
 assert.equal(summary.totalPaid, 500);
 assert.equal(summary.projectedBalance, 1380);
 assert.equal(summary.finalBalance, 1380);
+assert.equal(summary.variation, 380);
+
+upsertMonthlyFinance(state, { month: 8, year: 2026, initialBalance: 2000, finalBalance: 1800 });
+const explicitSummary = summarizeMonth(state, 8, 2026);
+assert.equal(explicitSummary.finalBalance, 1800);
+assert.equal(explicitSummary.variation, -200);
 console.log('finance tests passed');

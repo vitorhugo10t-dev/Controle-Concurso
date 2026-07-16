@@ -4,6 +4,8 @@
   "description": "Dashboard de finanças pessoais para controle mensal.",
   "type": "module",
   "scripts": {
+    "dev": "python3 -m http.server 4173",
+    "start": "python3 -m http.server 4173",
     "test": "node tests/finance.test.js"
   },
   "private": true
